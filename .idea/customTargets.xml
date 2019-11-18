@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CLionExternalBuildManager">
+    <target id="f2f811ba-1296-4238-a908-72bdd464a84c" name="Named" projectName="napiXformer">
+      <configuration id="e9284ed2-a522-499f-9bf7-7444dbf4668b" name="Named" toolchainName="Default">
+        <build type="TOOL">
+          <tool actionId="Tool_External Tools_NPM" />
+        </build>
+      </configuration>
+    </target>
+  </component>
+</project>

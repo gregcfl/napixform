@@ -1,0 +1,206 @@
+{
+    "id": "TriseptTrip.Id",
+    "rental_period": {
+        "from": "TODO - Vehicles",
+        "thru": "TODO - Vehicles"
+    },
+    "stay_period": {
+        "from": "TODO - Hotels",
+        "thru": "TODO - Hotels"
+    },
+    "travel_period": {
+        "from": "TriseptTrip.PackageInfo.DepartureDate",
+        "thru": "TriseptTrip.PackageInfo.ReturnDate"
+    },
+    "air": {
+        "cancellation_timestamp": "no_map",
+        "confirmation_number": "TriseptTrip.AirTrips[0].Confirmation.ConfirmationNumber",
+        "confirmation_timestamp": "no_map",
+        "reservation_status": "TriseptTrip.AirTrips[0].Confirmation.Status",
+        "id": "TriseptTrip.AirTrips[0].CartItemId",
+        "is_removable": "TriseptTrip.AirTrips[0].IsRemovable",
+        "air_travel": {
+            "description": "no_map",
+            "part_number": "no_map",
+            "price": {
+                "category": "no_map",
+                "is_included_in_package": "TriseptTrip.AirTrips[0].Price.IsIncludedInPackagePrice",
+                "sku_prices": "no_map",
+                "total_price": {
+                    "currency_code": "TriseptTrip.CurrencyCode",
+                    "amount": "TriseptTrip.AirTrips[0].Price.TotalPrice"
+                },
+                "total_taxes": {
+                    "currency_code": "TriseptTrip.CurrencyCode",
+                    "amount": "TriseptTrip.AirTrips[0].Price.Taxes"
+                }
+            },
+            "flights": [
+                {
+                    "IterateOver": "TriseptTrip.AirTrips[0].Legs",
+                    "ArrayTemplate": {
+                        "flight_legs": [
+                            {
+                                "IterateOver": "arrayItem.Flights",
+                                "ArrayTemplate": {
+                                    "branded_fare": {
+                                        "intermediate_description": "arrayItem.BrandedFare.IntermediateDescription",
+                                        "short_description": "arrayItem.BrandedFare.ShortDescription"
+                                    },
+                                    "codeshare": {
+                                        "carrier": {
+                                            "code": "arrayItem.CodeShareInformation.CodeShareCarrier",
+                                            "image": {
+                                                "size_name": "??",
+                                                "alt_text": "??",
+                                                "href": "??"
+                                            },
+                                            "name": "use_mapping ()"
+                                        },
+                                        "flight_number": "arrayItem.CodeShareInformation.CodeShareFlightNumber",
+                                        "information": "arrayItem.CodeShareInformation.DisplayText"
+                                    },
+                                    "flight_number": "arrayItem.FlightNumber",
+                                    "is_charter": "bool tbd",
+                                    "is_code_share": "arrayItem.CodeShareInformation.IsCodeshare",
+                                    "number_of_hidden_stops": "_base.TriseptTrip.Id",
+                                    "summary": {
+                                        "cabin": {
+                                            "code": "arrayItem.CabinCode",
+                                            "description": "arrayItem.CabinDescription"
+                                        },
+                                        "carrier": {
+                                            "code": "arrayItem.CarrierCode",
+                                            "image": {
+                                                "size_name": "??",
+                                                "alt_text": "??",
+                                                "href": "??"
+                                            },
+                                            "name": "arrayItem.CarrierDescription"
+                                        },
+                                        "equipment": {
+                                            "code": "no_map",
+                                            "description": "no_map"
+                                        },
+                                        "arrival": {
+                                            "airport_code": "arrayItem.Arrival.AirportCode",
+                                            "city_name": "arrayItem.Arrival.CityName",
+                                            "when": "arrayItem.Arrival.DateAndTime"
+                                        },
+                                        "departure": {
+                                            "airport_code": "arrayItem.Departure.AirportCode",
+                                            "city_name": "arrayItem.Departure.CityName",
+                                            "when": "arrayItem.Departure.DateAndTime"
+                                        }
+                                    }
+                                }
+                            }
+                        ],
+                        "leg_role": "tbd",
+                        "number_of_stops": 1,
+                        "stops": [
+                            {
+                                "airport": {
+                                    "code": "TBD",
+                                    "country_code": "TBD",
+                                    "name": "TBD"
+                                },
+                                "incoming_flight_leg_flight_number": "tbd",
+                                "layover_time_in_minutes": "tbd number",
+                                "outgoing_flight_leg_flight_number": "tbd"
+                            }
+                        ],
+                        "travel_time_in_minutes": "tbd number"
+                    }
+                }
+            ],
+            "package_part_number": "tbd"
+        },
+        "seat_assignments": [
+            {
+                "confirmation_number": "string",
+                "flight_flight_number": "string",
+                "seat": {
+                    "aircraft_seat": {
+                        "does_exist": "tbd bool",
+                        "is_aisle_on_left": "tbd bool",
+                        "is_aisle_on_right": "tbd bool",
+                        "is_premium": "tbd bool",
+                        "letter": "tbd",
+                        "number": "tbd",
+                        "row_number": "tbd number"
+                    },
+                    "is_available": "tbd bool",
+                    "is_occupied": "tbd bool"
+                },
+                "status": "tbd",
+                "traveler_id": "tbd"
+            }
+        ]
+    },
+    "is_travel_document_ready": "TriseptTrip.TravelDocument.IsReady",
+    "payment_info": {
+        "balance_due": {
+            "currency_code": "TriseptTrip.CurrencyCode",
+            "amount": "TriseptTrip.PaymentInfo.BalanceDue"
+        },
+        "deposit_due": {
+            "amount": {
+                "currency_code": "TriseptTrip.CurrencyCode",
+                "amount": "TriseptTrip.PaymentInfo.DepositDueAmount"
+            },
+            "date": "TriseptTrip.PaymentInfo.DepositDueDate"
+        },
+        "payment_booking_requirement": "TriseptTrip.PaymentInfo.PaymentDueAtCheckout",
+        "total_due": {
+            "amount": {
+                "currency_code": "TriseptTrip.CurrencyCode",
+                "amount": "TriseptTrip.PaymentInfo.FullPaymentDueAmount"
+            },
+            "date": "TriseptTrip.PaymentInfo.FullPaymentDueDate"
+        }
+    },
+    "rooms": "TODO - Hotels",
+    "trip_request": {
+        "price": {
+            "required_components_price": {
+                "currency_code": "TriseptTrip.CurrencyCode",
+                "amount": "TriseptTrip.PriceBreakdown.PackagePrice.TotalPrice"
+            },
+            "total_commission": {
+                "currency_code": "TriseptTrip.CurrencyCode",
+                "amount": "TriseptTrip.PriceBreakdown.TotalCommission"
+            },
+            "total_price": {
+                "currency_code": "TriseptTrip.CurrencyCode",
+                "amount": "TriseptTrip.PriceBreakdown.TotalPrice"
+            },
+            "total_taxes": {
+                "currency_code": "TriseptTrip.CurrencyCode",
+                "amount": "TriseptTrip.PriceBreakdown.TotalTaxes"
+            }
+        },
+        "cancellation_timestamp": "TriseptTrip.Confirmation.CancelTimestamp",
+        "confirmation_number": "TriseptTrip.Confirmation.ReservationId",
+        "confirmation_timestamp": "TriseptTrip.Confirmation.ConfirmationTimestamp",
+        "reservation_status": "TriseptTrip.Confirmation.Status",
+        "source": {
+            "extended_attributes": [
+                {
+                    "name": "n/a",
+                    "value": "n/a"
+                }
+            ],
+            "object_type_id": "cart",
+            "source_id": {
+                "name": "TriseptTrip.Confirmation.ReservationId",
+                "value": {}
+            },
+            "source_system_id": "TRISEPT"
+        }
+    },
+    "vehicle": "TODO - VehicleS",
+    "destination_code": "TriseptTrip.PackageInfo.AbsoluteDestination.Code",
+    "origin_code": "TriseptTrip.PackageInfo.AbsoluteOrigin.Code",
+    "vacation_package_part_number": "RedisData.data.vacation_package_id"
+}
