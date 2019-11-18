@@ -1,22 +1,11 @@
-# Blog: NodeJS Addons Example
+# Native NodeJS Addons - Napi Transformer
 
-This repo contains the example code for the blog post:
+C++ native addon for NodeJS using N-API
 
-**Beginners guide to writing NodeJS Addons using C++ and N-API (node-addon-api)**
+Uses a template JSON to convert an object from one type to another.
 
+# The following repo and blog post served as a starter and inspiration:
 
-*The blog link :*
+- [https://medium.com/@atulanand94/beginners-guide-to-writing-nodejs-addons-using-c-and-n-api-node-addon-api-9b3b718a9a7f](https://medium.com/@atulanand94/beginners-guide-to-writing-nodejs-addons-using-c-and-n-api-node-addon-api-9b3b718a9a7f)
 
-[https://medium.com/@atulanand94/beginners-guide-to-writing-nodejs-addons-using-c-and-n-api-node-addon-api-9b3b718a9a7f](https://medium.com/@atulanand94/beginners-guide-to-writing-nodejs-addons-using-c-and-n-api-node-addon-api-9b3b718a9a7f)
-
-
-To run the example:
-
-- `git clone https://github.com/master-atul/blog-addons-example`
-- `npm install`
-- `npm run build` //This is mostly not needed. But just in case
-- `node index.js`
-
-
-Hope this helps someone 🎉🌮
-
+- https://github.com/master-atul/blog-addons-example`
