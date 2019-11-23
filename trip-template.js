@@ -5,7 +5,12 @@ const tripTemplateBase = {
         addr_line: {
             addr_line_1: "dets.two",
             addr_line_2: "dets.three",
-            zip: "(zipper, zipcode.code, zipcode.plus4)"
+            cust_func_w_err: { Funct:
+                    {fnName: "hellostrin",
+                    params: "zipcode.code, zipcode.plus4"
+                } },
+            string_func: { Funct:
+                    {fnName: "hellostring" } }
         },
         city_st: "Tmplate Main St",
     },
@@ -86,7 +91,8 @@ const xfuncts = {
         } else {
             return left;
         }
-      }
+      },
+      hellostring : () => "Hello There!"
 }
 
 module.exports = {tripTemplateBase, inputData, xfuncts};

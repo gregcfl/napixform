@@ -8,7 +8,7 @@
 using json = nlohmann::json;
 using std::vector;
 
-Napi::Value WalkObject(nlohmann::basic_json<> const &input_template, nlohmann::basic_json<> const &input_obj, Napi::Env const env);
+Napi::Value WalkObject(nlohmann::basic_json<> const &input_template, nlohmann::basic_json<> const &input_obj, Napi::Object function_obj, Napi::Env const env);
 
 // Create a vector of strings from a single string delimited with
 // the character in the supplied parameter: delim.
@@ -38,10 +38,40 @@ Napi::Value get_value_of(nlohmann::json::value_type const &item, Napi::Env const
   return Napi::String::Value();
 }
 
+// Run a transformation function in an included object
+Napi::Value runJsFunction(nlohmann::basic_json<> const &item_definition,
+                         nlohmann::basic_json<> const &input_obj,
+                         nlohmann::basic_json<> base,
+                         Napi::Object func_obj,
+                         Napi::Env const &env)
+{
+  auto fn_name_iter = item_definition.find("fnName");
+  if ( fn_name_iter != item_definition.end() )
+  {
+    auto fn_name = static_cast<std::string>(*fn_name_iter);
+    auto fn_val = func_obj.Get(fn_name);
+    if ( fn_val.IsFunction() )
+    {
+      auto params_iter = item_definition.find("params");
+      auto paramlist = static_cast<std::string>(*params_iter);
+      if ( params_iter != item_definition.end())
+      {
+
+      }
+      auto the_fn = Napi::Function(env, fn_val);
+      auto args = std::initializer_list<napi_value>();
+      auto rv = the_fn(args);
+      return Napi::Value::From(env, rv);
+    }
+  }
+  return Napi::String::From(env, "CUSTOM_FUNCTION_ERROR");
+}
+
 // Process an object that defines how to process an array in the template
 Napi::Value ProcessArray(nlohmann::basic_json<> const &item_definition,
                          nlohmann::basic_json<> const &input_obj,
                          nlohmann::basic_json<> base,
+                         Napi::Object func_obj,
                          Napi::Env const &env)
 {
   auto i_iterateOver = item_definition.find("IterateOver");
@@ -64,7 +94,7 @@ Napi::Value ProcessArray(nlohmann::basic_json<> const &item_definition,
       auto return_array = Napi::Array::New(env);
       int x=0;
       for ( auto arr_item : arr_iterateover ) {
-        auto an_item = WalkObject(*i_arrayTemplate, arr_item, env);
+        auto an_item = WalkObject(*i_arrayTemplate, arr_item, func_obj, env);
         return_array.Set(x++, an_item);
       }
       return return_array;
@@ -126,7 +156,7 @@ Napi::Value ConvertText(nlohmann::basic_json<> const &item_value, nlohmann::basi
 }
 
 // Recursively walk the Json object template and return the javascript value created by it
-Napi::Value WalkObject(nlohmann::basic_json<> const &input_template, nlohmann::basic_json<> const &input_obj, Napi::Env const env)
+Napi::Value WalkObject(nlohmann::basic_json<> const &input_template, nlohmann::basic_json<> const &input_obj, Napi::Object const func_obj, Napi::Env const env)
 {
   static nlohmann::basic_json<> base_ = nlohmann::json::object();
   base_ = base_.empty() ? input_obj : base_;
@@ -138,11 +168,14 @@ Napi::Value WalkObject(nlohmann::basic_json<> const &input_template, nlohmann::b
     {
       // Magic string: ArrayOf means return a processed array
       if (item.key() == "ArrayOf") {
-        return ProcessArray(item.value(), input_obj, base_, env);
+        return ProcessArray(item.value(), input_obj, base_, func_obj, env);
+      }
+      else if (item.key() == "Funct") {
+        return runJsFunction(item.value(), input_obj, base_, func_obj, env);
       }
       else {
-        new_obj.Set(item.key(), WalkObject(item.value(), input_obj, env));
-        }
+        new_obj.Set(item.key(), WalkObject(item.value(), input_obj, func_obj, env));
+      }
     }
     else if (item.value().is_string())
     {
@@ -185,13 +218,13 @@ Napi::Value Convert(const Napi::CallbackInfo &info)
 
   Napi::Value return_object = Napi::Object::New(calling_env);
   int length = info.Length();
+  Napi::Object functs;
 
-  if (length != 2)
+  if (length < 2)
   {
     Napi::TypeError::New(calling_env, "ERROR:  (Only) Two parameters expected. A template and input data must be supplied.").ThrowAsJavaScriptException();
     return return_object;
   }
-
   if (!info[0].IsString())
   {
     Napi::TypeError::New(calling_env, "First parameter must be a JSON template string").ThrowAsJavaScriptException();
@@ -202,11 +235,19 @@ Napi::Value Convert(const Napi::CallbackInfo &info)
     Napi::TypeError::New(calling_env, "Second parameter must be a JSON object object").ThrowAsJavaScriptException();
     return return_object;
   }
+  if ( length == 3 )
+  {
+    functs = info[2].As<Napi::Object>();
+  }
+  else
+  {
+    functs = Napi::Object::New(calling_env);
+  }
 
   auto input_template = json::parse(static_cast<std::string>(info[0].As<Napi::String>()));
   auto input_obj = json::parse(static_cast<std::string>(info[1].As<Napi::String>()));
 
-  return_object = WalkObject(input_template, input_obj, calling_env);
+  return_object = WalkObject(input_template, input_obj, functs, calling_env);
   return return_object;
 }
 
