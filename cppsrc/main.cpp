@@ -1,7 +1,6 @@
 #include "Include/json.hpp"  // C++ Json Library
 #include <napi.h>  // C++ Nodejs N-API library
 #include <string>
-#include <iostream>
 #include <regex>
 #include <vector>
 #include "Include/str_stuff.h"
@@ -12,25 +11,9 @@ using std::vector;
 //Forward Declare
 Napi::Value WalkObject(nlohmann::basic_json<> const &input_template, nlohmann::basic_json<> const &input_obj, Napi::Object function_obj, Napi::Env const env);
 
-// Create a vector of strings from a single string delimited with
-// the character in the supplied parameter: delim.
-vector<std::string> tokenize(const std::string &s, const char delim)
-{
-  vector<std::string> out;
-  std::string::size_type beg = 0;
-  for (std::string::size_type end = 0; (end = s.find(delim, end)) != std::string::npos; ++end)
-  {
-    out.push_back(s.substr(beg, end - beg));
-    beg = end + 1;
-  }
-
-  auto rs = s.substr(beg);
-  out.push_back(trim(rs));
-  return out;
-}
 
 // Create a javascript value from a json value type
-Napi::Value get_value_of(nlohmann::json::value_type const &item, Napi::Env const &env)
+Napi::Value get_napi_value_of(nlohmann::json::value_type const &item, Napi::Env const &env)
 {
   if (item.is_string())
     return Napi::String::New(env, static_cast<std::string>(item));
@@ -41,7 +24,8 @@ Napi::Value get_value_of(nlohmann::json::value_type const &item, Napi::Env const
   return Napi::String::Value();
 }
 
-// Process an object that defines how to process an array in the template
+// Process a Json {ArrayOf: {}} object that defines how to iterate an array in
+// the template
 Napi::Value ProcessArray(nlohmann::basic_json<> const &item_definition,
                          nlohmann::basic_json<> const &input_obj,
                          nlohmann::basic_json<> base,
@@ -78,8 +62,9 @@ Napi::Value ProcessArray(nlohmann::basic_json<> const &item_definition,
   return Napi::Value::From(env, "process_array_failure");
 }
 
-// Called when the target in the template is a text value, which is either a hard-coded value
-// or is a template indicator pointing to the input object from which to derive its value
+// Process a text value, value will be either:
+//  1. a hard-coded value
+//  2. a template indicator to be deciphered into a result
 Napi::Value ConvertText(nlohmann::basic_json<> const &item_value, nlohmann::basic_json<> const &input_obj, Napi::Env env)
 {
   auto outer_obj = input_obj;
@@ -102,7 +87,7 @@ Napi::Value ConvertText(nlohmann::basic_json<> const &item_value, nlohmann::basi
         {
           return Napi::Number::Value(env, nullptr);
         }
-        return get_value_of(inside_value, env);
+        return get_napi_value_of(inside_value, env);
       }
     }
     else
@@ -119,7 +104,7 @@ Napi::Value ConvertText(nlohmann::basic_json<> const &item_value, nlohmann::basi
           if (index >= 0 && static_cast<int>(an_array.size()) > index) {
             outer_obj = an_array[index];
             if ( !outer_obj.is_object() ) {
-              return get_value_of(outer_obj, env);
+              return get_napi_value_of(outer_obj, env);
             }
           }
         }
@@ -129,7 +114,8 @@ Napi::Value ConvertText(nlohmann::basic_json<> const &item_value, nlohmann::basi
   return Napi::Value::From(env, item_value);
 }
 
-// Run a transformation function in an included object
+// Run a JS function defined in the JSon template {Funct {fnName, params}}
+// which is passed into native on an in an included object
 Napi::Value runJsFunction(nlohmann::basic_json<> const &item_definition,
                          nlohmann::basic_json<> const &input_obj,
                          nlohmann::basic_json<> base,
@@ -161,7 +147,8 @@ Napi::Value runJsFunction(nlohmann::basic_json<> const &item_definition,
   return Napi::String::From(env, "CUSTOM_FUNCTION_ERROR");
 }
 
-// Recursively walk the Json object template and return the javascript value created by it
+// Recursively walk the Json object template and return the javascript object
+// created by it.
 Napi::Value WalkObject(nlohmann::basic_json<> const &input_template, nlohmann::basic_json<> const &input_obj, Napi::Object const func_obj, Napi::Env const env)
 {
   static nlohmann::basic_json<> base_ = nlohmann::json::object();
