@@ -1,4 +1,4 @@
-const jtransformer = require('./build/Debug/jtransformer.node');
+const jtransformer = require('./build/Release/jtransformer.node');
 
 const tmplate = JSON.stringify(require("./trip-template").tripTemplateBase)
 const inputData = JSON.stringify(require("./trip-template").inputData);

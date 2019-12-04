@@ -9,6 +9,7 @@
 using json = nlohmann::json;
 using std::vector;
 
+//Forward Declare
 Napi::Value WalkObject(nlohmann::basic_json<> const &input_template, nlohmann::basic_json<> const &input_obj, Napi::Object function_obj, Napi::Env const env);
 
 // Create a vector of strings from a single string delimited with
@@ -213,7 +214,7 @@ Napi::Value WalkObject(nlohmann::basic_json<> const &input_template, nlohmann::b
 }
 
 /* ********************************************************************** */
-//            Exported function                                           //
+// Exported function:                                                     //
 // Convertes the input data to the templated shape. Returns a new         //
 // javascript value in the template shape with data from the input data   //
 /* ********************************************************************** */
@@ -225,9 +226,9 @@ Napi::Value Convert(const Napi::CallbackInfo &info)
   int length = info.Length();
   Napi::Object functs;
 
-  if (length < 2)
+  if (length !=2 && length !=3)
   {
-    Napi::TypeError::New(calling_env, "ERROR:  (Only) Two parameters expected. A template and input data must be supplied.").ThrowAsJavaScriptException();
+    Napi::TypeError::New(calling_env, "ERROR:  Two or three parameters expected. A template and input data must be supplied.").ThrowAsJavaScriptException();
     return return_object;
   }
   if (!info[0].IsString())
