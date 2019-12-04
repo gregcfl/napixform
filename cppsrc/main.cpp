@@ -4,6 +4,7 @@
 #include <iostream>
 #include <regex>
 #include <vector>
+#include "Include/str_stuff.h"
 
 using json = nlohmann::json;
 using std::vector;
@@ -22,7 +23,8 @@ vector<std::string> tokenize(const std::string &s, const char delim)
     beg = end + 1;
   }
 
-  out.push_back(s.substr(beg));
+  auto rs = s.substr(beg);
+  out.push_back(trim(rs));
   return out;
 }
 
@@ -36,35 +38,6 @@ Napi::Value get_value_of(nlohmann::json::value_type const &item, Napi::Env const
   if (item.is_boolean())
     return Napi::Boolean::New(env, static_cast<bool>(item));
   return Napi::String::Value();
-}
-
-// Run a transformation function in an included object
-Napi::Value runJsFunction(nlohmann::basic_json<> const &item_definition,
-                         nlohmann::basic_json<> const &input_obj,
-                         nlohmann::basic_json<> base,
-                         Napi::Object func_obj,
-                         Napi::Env const &env)
-{
-  auto fn_name_iter = item_definition.find("fnName");
-  if ( fn_name_iter != item_definition.end() )
-  {
-    auto fn_name = static_cast<std::string>(*fn_name_iter);
-    auto fn_val = func_obj.Get(fn_name);
-    if ( fn_val.IsFunction() )
-    {
-      auto params_iter = item_definition.find("params");
-      auto paramlist = static_cast<std::string>(*params_iter);
-      if ( params_iter != item_definition.end())
-      {
-
-      }
-      auto the_fn = Napi::Function(env, fn_val);
-      auto args = std::initializer_list<napi_value>();
-      auto rv = the_fn(args);
-      return Napi::Value::From(env, rv);
-    }
-  }
-  return Napi::String::From(env, "CUSTOM_FUNCTION_ERROR");
 }
 
 // Process an object that defines how to process an array in the template
@@ -153,6 +126,38 @@ Napi::Value ConvertText(nlohmann::basic_json<> const &item_value, nlohmann::basi
     }
   }
   return Napi::Value::From(env, item_value);
+}
+
+// Run a transformation function in an included object
+Napi::Value runJsFunction(nlohmann::basic_json<> const &item_definition,
+                         nlohmann::basic_json<> const &input_obj,
+                         nlohmann::basic_json<> base,
+                         Napi::Object func_obj,
+                         Napi::Env const &env)
+{
+  auto fn_name_iter = item_definition.find("fnName");
+  if ( fn_name_iter != item_definition.end() )
+  {
+    auto fn_name = static_cast<std::string>(*fn_name_iter);
+    auto fn_val = func_obj.Get(fn_name);
+    if ( fn_val.IsFunction() )
+    {
+      auto args_vector = std::vector<napi_value>();
+      auto params_iter = item_definition.find("params");
+      if ( params_iter != item_definition.end())
+      {
+        auto paramlist = static_cast<std::string>(*params_iter);
+        auto param_pieces = tokenize(paramlist, ',');
+        for (auto param : param_pieces) {
+          args_vector.push_back(ConvertText(param, input_obj, env));
+        }
+      }
+      auto the_fn = Napi::Function(env, fn_val);
+      auto rv = the_fn.Call(args_vector);
+      return Napi::Value::From(env, rv);
+    }
+  }
+  return Napi::String::From(env, "CUSTOM_FUNCTION_ERROR");
 }
 
 // Recursively walk the Json object template and return the javascript value created by it

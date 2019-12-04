@@ -9,6 +9,10 @@ const tripTemplateBase = {
                     {fnName: "hellostrin",
                     params: "zipcode.code, zipcode.plus4"
                 } },
+            cust_func_zip: { Funct:
+                {fnName: "zipper",
+                params: "zipcode.code, zipcode.plus4"
+            } },
             string_func: { Funct:
                     {fnName: "hellostring" } }
         },
@@ -21,7 +25,7 @@ const tripTemplateBase = {
         hardcoded_bool: true,
         hardcoded_num: 5,
         other: "dets.nonexistent",
-        not_found: "anarray[1]"
+        not_found: "not_anarray[1]"
     },
     description: "description",
     onehundred_from_an_array: "AnArray[0]",
